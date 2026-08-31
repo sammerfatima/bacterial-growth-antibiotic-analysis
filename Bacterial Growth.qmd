@@ -1,0 +1,83 @@
+---
+title: "Effect of Erythromycin on Bacterial Growth Across Temperature"
+author: "Samar"
+format: html
+editor: visual
+---
+## Introduction
+The dataset is about the bacterial growth(log_OD) measured at 7 fixed temperatures and two treatment groups (no_antibiotic and erythromycin). The analysis was performed to see whether the bacterial growth is affected by temperature and treatment Also, whether the effect of treatment depends on temperature. Here are three questions asked: (1) is there a real trend across temperature, or should this be treated as distinct groups given the shape you'll see, (2) is the model actually reliable — check the diagnostics — and (3) flag anything in the data itself that looks off, including whether it might be a real biological reading or an entry error.
+
+## Method
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+sample2 <- read_csv("sample 2.csv")
+str(sample2)
+```
+
+## Exploratory Analysis
+
+```{r}
+my_colors1 <- c("no_antibiotic" = "#D55E00", "erythromycin" = "#0072B2")
+ggplot(sample2, aes(x = Temperature, y = log_OD, color = treatment, group = treatment)) +
+  stat_summary(fun = mean, geom = "point") +
+  stat_summary(fun = mean, geom = "line", linewidth = 1) +
+                 stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2) +
+                 scale_color_manual(values = my_colors1) +
+                 labs(
+                   title = "Bacterial Growth Across Temperature Levels",
+                   x = "Temperature",
+                   y = "Optical Density (log_OD)",
+                   color = "Treatment"
+                 ) +
+                 theme_classic(base_size = 14) +
+                 theme(
+                   plot.title = element_text(face = "bold", hjust = 0.5))
+```
+
+## Statistical Analysis
+
+```{r}
+model <- lm(log_OD ~ treatment * Temperature, data = sample2)
+summary(model)
+```
+
+## Model Diagnostics
+
+```{r}
+plot(model)
+sample2 |>
+  mutate(cooks_d = cooks.distance(model)) |>
+  filter(cooks_d > 4/nrow(sample2))
+```
+
+## Results
+There was a significant interaction between treatment and temperature (p = 0.0411), indicating that the effect of treatment is dependent on the temperature levels. The main effect of treatment is not significant (p=0.17), but the main effect of temperature is significant (p < 0.0001). However, this effect should be interpreted with caution, as there was also a significant interaction between temperature and treatment indicating that the effect of treatment differed depending upon temperature. The interaction plot shows minimal difference at low temperatures but a substantial gap at high temperatures, which the averaged main-effect p-value obscure. The Adjusted R-squared:  0.4337 is low to moderate that tells the model shape is wrong for this data as there is a rise and fall in cuve shown in ggplot. This plot also shows that there is an interaction between temperature and treatment because of diverging and cossing lines.  Also, diagnostic plots confirmed this observation and telling about unequal variance and non-normal residuals. I would suggest using temperature as categorical variable and running the anova test to actually see whether the change in temperature affecting treatment effect. It can be more accurate model.  With the help of Cook’s Distance plot, sample id: 11 is identified as flagged point. It could be data entry error. There might be a pseudoreplication risk here, if you have used same sample and measured it six times and represented them as six separate samples in dataset. I would suggest to confirm whether they are the biological replicates or technical to conclude is it a plausible biological reading or a data entry error. 
+
+## Conclusion
+This model is not reliable for this dataset, temperature needs to be categorical group and test using ANOVA model. To confirm that the flagged point is just an data entry error or a plausible biological reding, it requires to check the experimental design. 
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
