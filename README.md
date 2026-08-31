@@ -7,7 +7,7 @@ growth (log optical density) across a range of incubation temperatures
 
 ## Files
 - `Bacterial Growth.qmd` — full reproducible analysis (R code + interpretation)
-- `Bacterial Growth.html` — rendered report ([view live report](LINK-YAHAN-AYEGA))
+- `Bacterial Growth.html` — rendered report ([view live report](https://sammerfatima.github.io/bacterial-growth-antibiotic-analysis/Bacterial%20Growth.html))
 - `sample 2.csv` — raw dataset
 
 ## Key Findings
